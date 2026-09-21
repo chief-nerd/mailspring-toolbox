@@ -21,9 +21,11 @@
     ],
     "paths": {
       "mailspring-exports": [
+        "types/host.d.ts",
         "../Mailspring/app/src/global/mailspring-exports"
       ],
       "mailspring-component-kit": [
+        "types/host.d.ts",
         "../Mailspring/app/src/global/mailspring-component-kit"
       ]
     }

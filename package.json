@@ -1,7 +1,7 @@
 {
   "name": "mailspring-toolbox",
   "main": "./lib/main.js",
-  "version": "1.0.0",
+  "version": "1.1.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/alexey-anufriev/mailspring-toolbox"

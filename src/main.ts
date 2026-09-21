@@ -1,35 +1,56 @@
 import {ComponentRegistry, WorkspaceStore} from "mailspring-exports";
-import UnreadFirstButton from "./unread-first-button";
+import InboxSortDropdown, {UnreadFirstButton} from "./unread-first-button";
 import {CONFIG_KEYS} from "./config-keys";
 import {MailboxUtils} from "./mailbox-utils";
-import {UnreadFirstFeature} from "./unread-first-feature";
+import {InboxSortFeature} from "./unread-first-feature";
 
 const mailboxUtils = new MailboxUtils();
-const unreadFirst = new UnreadFirstFeature(() => mailboxUtils.refreshCurrentMailbox());
+const inboxSort = new InboxSortFeature(() => mailboxUtils.refreshCurrentMailbox());
 
-let _unreadFirstDisposer: any = null;
+let _unreadDisposer: any = null;
+let _starredDisposer: any = null;
+
+function updateSortFeature() {
+    const unread = !!AppEnv.config.get(CONFIG_KEYS.UNREAD_FIRST);
+    const starred = !!AppEnv.config.get(CONFIG_KEYS.STARRED_FIRST);
+
+    if (unread || starred) {
+        inboxSort.enable();
+    } else {
+        inboxSort.disable();
+    }
+}
 
 export function activate() {
-    ComponentRegistry.register(UnreadFirstButton, {
+    ComponentRegistry.register(InboxSortDropdown, {
         location: WorkspaceStore.Location.RootSidebar.Toolbar,
     });
 
-    _unreadFirstDisposer = AppEnv.config.observe(CONFIG_KEYS.UNREAD_FIRST, (enabled: boolean) => {
-        if (enabled) {
-            unreadFirst.enable();
-        } else {
-            unreadFirst.disable();
-        }
+    _unreadDisposer = AppEnv.config.observe(CONFIG_KEYS.UNREAD_FIRST, () => {
+        updateSortFeature();
     });
+
+    _starredDisposer = AppEnv.config.observe(CONFIG_KEYS.STARRED_FIRST, () => {
+        updateSortFeature();
+    });
+
+    updateSortFeature();
 
     console.log('[mailspring-toolbox] initialized');
 }
 
 export function deactivate() {
-    if (_unreadFirstDisposer?.dispose) {
-        _unreadFirstDisposer.dispose();
+    if (_unreadDisposer?.dispose) {
+        _unreadDisposer.dispose();
     }
-    _unreadFirstDisposer = null;
+    _unreadDisposer = null;
 
-    unreadFirst.disable();
+    if (_starredDisposer?.dispose) {
+        _starredDisposer.dispose();
+    }
+    _starredDisposer = null;
+
+    inboxSort.disable();
 }
+
+export { InboxSortDropdown, UnreadFirstButton };
